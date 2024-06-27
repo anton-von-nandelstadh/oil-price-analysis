@@ -1,11 +1,12 @@
 """This file trains the LSTM on the data in the /data folder based on the model from the model.py file"""
 import numpy as np
 import torch
+from torch.utils.data import TensorDataset
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import math
 
-def DataLoader(train_test):
+def DataProcessor(train_or_test):
     data = pd.read_csv('data/oilprice.csv')
     data = data.drop('DATE', axis=1)
     data = data.replace('.', np.NaN)
@@ -15,8 +16,8 @@ def DataLoader(train_test):
     # print(data.head())
     X_train, X_test = train_test_split(data, train_size=0.8, test_size=0.2, shuffle=False)
     # print(X_train.head())
-    trainlen = X_train.shape[0]
-    testlen = X_test.shape[0]
+    # trainlen = X_train.shape[0]
+    # testlen = X_test.shape[0]
 
     def SeqSplit(data, context_window):
         X = []
@@ -52,26 +53,26 @@ def DataLoader(train_test):
     y_test = torch.unsqueeze(y_test, dim=2)
 
     print(X_train.shape, y_train.shape)
-    batch_size = 75
+    # batch_size = 75
 
-    def batcher(seq, batch_size=batch_size):
-        num_batches = math.ceil(seq.shape[0]/batch_size)
-        seq_batched = [seq[batch_size*y:batch_size*(y+1),:,:] for y in range(num_batches)]
+    # def batcher(seq, batch_size=batch_size):
+    #     num_batches = math.ceil(seq.shape[0]/batch_size)
+    #     seq_batched = [seq[batch_size*y:batch_size*(y+1),:,:] for y in range(num_batches)]
+    #
+    #     return seq_batched
 
-        return seq_batched
+    # X_train = batcher(X_train)
+    # y_train = batcher(y_train)
+    #
+    # X_test = batcher(X_test)
+    # y_test = batcher(y_test)
 
-    X_train = batcher(X_train)
-    y_train = batcher(y_train)
-
-    X_test = batcher(X_test)
-    y_test = batcher(y_test)
-
-    if train_test == 'train':
-        print('Xtrain length: ', len(X_train))
-        print('Dataloader length: ', len([(X_train[i], y_train[i]) for i in range(len(X_train))]))
-        return trainlen, [(X_train[i], y_train[i]) for i in range(len(X_train))]
-    if train_test == 'test':
-        return testlen, [(X_test[i], y_test[i]) for i in range(len(X_test))]
+    if train_or_test == 'train':
+        return TensorDataset(X_train, y_train)
+        # return trainlen, [(X_train[i], y_train[i]) for i in range(len(X_train))]
+    if train_or_test == 'test':
+        return TensorDataset(X_test, y_test)
+        # return testlen, [(X_test[i], y_test[i]) for i in range(len(X_test))]
     else:
         raise Exception('Neither test nor train')
 

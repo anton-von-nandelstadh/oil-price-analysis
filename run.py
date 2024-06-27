@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
-from utils import DataLoader
+import torch.utils.data as data
+from utils import DataProcessor
 from model import LSTMRegressor
 
 device = (
@@ -17,13 +18,14 @@ model = LSTMRegressor(hidden_size=50).to(device)
 optimizer = torch.optim.Adam(model.parameters())
 loss_fn = nn.MSELoss()
 
-trainlen, train_dataloader = DataLoader('train')
-testlen, test_dataloader = DataLoader('test')
+batch_size = 64
+train_dataloader = data.DataLoader(DataProcessor('train'), batch_size=batch_size)
+test_dataloader = data.DataLoader(DataProcessor('test'), batch_size=batch_size)
 
 # print('Length of training dataset: ', trainlen)
 
-def train(dataloader, size, model, loss_fn, optimizer):
-    print('Dataloader length: ', len(dataloader))
+def train(dataloader, model, loss_fn, optimizer):
+    size = len(dataloader.dataset)
     model.train()
     for batch, (X, y) in enumerate(dataloader):
         X, y = X.to(device), y.to(device)
@@ -41,7 +43,8 @@ def train(dataloader, size, model, loss_fn, optimizer):
         #     loss, current = loss.item(), (batch + 1) * len(X)
         #     print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
 
-def test(dataloader, size, model, loss_fn):
+def test(dataloader, model, loss_fn):
+    size = len(dataloader.dataset)
     num_batches = len(dataloader)
     model.eval()
     test_loss, correct = 0, 0
@@ -58,8 +61,8 @@ def test(dataloader, size, model, loss_fn):
 epochs = 200
 for t in range(epochs):
     print(f"Epoch {t+1}\n-------------------------------")
-    train(train_dataloader, trainlen, model, loss_fn, optimizer)
-    test(test_dataloader, testlen, model, loss_fn)
+    train(train_dataloader, model, loss_fn, optimizer)
+    test(test_dataloader, model, loss_fn)
 print("Done!")
 
 torch.save(model.state_dict(), "model.pth")
