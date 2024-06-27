@@ -22,8 +22,6 @@ batch_size = 64
 train_dataloader = data.DataLoader(DataProcessor('train'), batch_size=batch_size)
 test_dataloader = data.DataLoader(DataProcessor('test'), batch_size=batch_size)
 
-# print('Length of training dataset: ', trainlen)
-
 def train(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
     model.train()
@@ -38,10 +36,6 @@ def train(dataloader, model, loss_fn, optimizer):
         loss.backward()
         optimizer.step()
         optimizer.zero_grad()
-
-        # if batch % 100 == 0:
-        #     loss, current = loss.item(), (batch + 1) * len(X)
-        #     print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
 
 def test(dataloader, model, loss_fn):
     size = len(dataloader.dataset)
