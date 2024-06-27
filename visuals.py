@@ -2,15 +2,14 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+from datetime import datetime
 
 data = pd.read_csv('data/oilprice.csv')
-print(data.index)
-print(data.head)
+data['DATE'] = pd.to_datetime(data['DATE'])
 data = data.set_index('DATE')
 data['DCOILBRENTEU'].replace('.', np.NaN, inplace=True)
-print(data.head)
 data = data.ffill()
-data['DCOILBRENTEU'].astype('float')
+data['DCOILBRENTEU'] = data['DCOILBRENTEU'].astype('float32')
 
-plt.plot(data[['DCOILBRENTEU']].values.astype('float32'))
+plt.plot(data.index, data['DCOILBRENTEU'])
 plt.show()
