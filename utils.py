@@ -38,7 +38,6 @@ def DataProcessor(train_or_test):
 
     X_train, y_train = SeqSplit(X_train['DCOILBRENTEU'].tolist(), 16)
     X_test, y_test = SeqSplit(X_test['DCOILBRENTEU'].tolist(), 16)
-    print(X_train.shape, y_train.shape)
     
     #Modifies dimensions to work with the LSTM model
     X_train = torch.unsqueeze(X_train, dim=2)
